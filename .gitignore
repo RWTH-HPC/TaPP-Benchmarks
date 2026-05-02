@@ -1,0 +1,12 @@
+*
+!Makefile
+!LICENSE
+!README.md
+!.gitignore
+
+!src
+src/*
+!src/*.c
+!src/*.cpp
+!src/*.h
+!src/*.inc
