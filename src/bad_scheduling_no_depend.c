@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <sys/time.h>
 #include "delay.h"
-#include <scorep/SCOREP_User.h>
 
 #include "parse_flags.h"
 
@@ -18,10 +17,6 @@
 #define SMALL_TASK_PRIO commandline_flags->task_priority
 #define BIG_TASK_PRIO commandline_flags->big_task_priority
 
-
-SCOREP_USER_REGION_DEFINE(initialtask)
-SCOREP_USER_REGION_DEFINE(bigtask)
-SCOREP_USER_REGION_DEFINE(smalltask)
 
 int main(int argc, char *argv[])
 {
@@ -57,24 +52,18 @@ int main(int argc, char *argv[])
   {
     #pragma omp single
     {
-          SCOREP_USER_REGION_BEGIN(initialtask, "Initial Task", SCOREP_USER_REGION_TYPE_COMMON)
           int i;
           #pragma omp task priority(BIG_TASK_PRIO)
           {
-            SCOREP_USER_REGION_BEGIN(bigtask, "Big Task", SCOREP_USER_REGION_TYPE_COMMON)
             delay_sleep(delay_big);
-            SCOREP_USER_REGION_END(bigtask)
           }
           for (i=0; i < ntasks; i++)
           {
             #pragma omp task priority(SMALL_TASK_PRIO)
             {
-              SCOREP_USER_REGION_BEGIN(smalltask, "Small Task", SCOREP_USER_REGION_TYPE_COMMON)
               delay_sleep(delay_small);
-              SCOREP_USER_REGION_END(smalltask)
             }
           }
-          SCOREP_USER_REGION_END(initialtask)
     }
   }
   res = omp_control_tool(omp_control_tool_end, 0, NULL);

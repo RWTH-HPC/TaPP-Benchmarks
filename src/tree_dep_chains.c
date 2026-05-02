@@ -2,7 +2,6 @@
 #include <omp.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <scorep/SCOREP_User.h>
 
 #include "parse_flags.h"
 
@@ -10,10 +9,6 @@
 #define INIT_CHAINLENGTH commandline_flags->depth
 #define BRANCH_CHAINLENGTH commandline_flags->bdepth // Number of tasks in a branch
 #define DEFAULT_DELAY_TIME commandline_flags->chain_task_delay  // Default delaytime in microseconds
-
-SCOREP_USER_REGION_DEFINE(initchain)
-SCOREP_USER_REGION_DEFINE(branch)
-SCOREP_USER_REGION_DEFINE(firstbranch)
 
 int main(int argc, char *argv[])
 {
@@ -49,9 +44,7 @@ int main(int argc, char *argv[])
       for (i=0; i < INIT_CHAINLENGTH; i++) {
         #pragma omp task depend(inout: x)
         {
-          SCOREP_USER_REGION_BEGIN(initchain, "Init Chain Task", SCOREP_USER_REGION_TYPE_COMMON)
           delay_sleep(delaylength);
-          SCOREP_USER_REGION_END(initchain)
         }
       }
 
@@ -59,16 +52,12 @@ int main(int argc, char *argv[])
       {
         #pragma omp task depend(in: x) depend(out: dep_arr[i])
         {
-          SCOREP_USER_REGION_BEGIN(firstbranch, "First Branch Task", SCOREP_USER_REGION_TYPE_COMMON)
           delay_sleep(delaylength);
-          SCOREP_USER_REGION_END(firstbranch)
         }
         for(j=0; j < BRANCH_CHAINLENGTH-1; j++) {
           #pragma omp task depend(inout: dep_arr[i])
           {
-            SCOREP_USER_REGION_BEGIN(branch, "Branch Task", SCOREP_USER_REGION_TYPE_COMMON)
             delay_sleep(delaylength);
-            SCOREP_USER_REGION_END(branch)
           }
         }
       }

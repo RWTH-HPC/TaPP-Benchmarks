@@ -2,7 +2,6 @@
 #include <omp.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <scorep/SCOREP_User.h>
 
 #include "parse_flags.h"
 
@@ -11,17 +10,12 @@
 #define BRANCH_CHAINLENGTH commandline_flags->bdepth // Number of tasks in a branch
 #define DEFAULT_DELAY_TIME commandline_flags->chain_task_delay  // Default delaytime in microseconds
 
-SCOREP_USER_REGION_DEFINE(initchain)
-SCOREP_USER_REGION_DEFINE(branch)
-
 void recursive_task_branch(int depth, double delaylength) {
   delay_sleep(delaylength);
   if (depth > 0) {
     #pragma omp task
     {
-      SCOREP_USER_REGION_BEGIN(branch, "Branch Task", SCOREP_USER_REGION_TYPE_COMMON)
       recursive_task_branch(depth-1, delaylength);
-      SCOREP_USER_REGION_END(branch)
     }
   }
 }
@@ -31,9 +25,7 @@ void recursive_task(int depth, double delaylength, int nbranches) {
   if (depth > 0) {
     #pragma omp task
     {
-      SCOREP_USER_REGION_BEGIN(initchain, "Init Chain Task", SCOREP_USER_REGION_TYPE_COMMON)
       recursive_task(depth-1, delaylength, nbranches);
-      SCOREP_USER_REGION_END(initchain)
     }
   }
   else if (depth == 0) {
