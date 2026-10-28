@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
   printf("Parallel region took %f sec.\n", etime);
 
   // Print expected values
+  double taCP = (BRANCH_CHAINLENGTH + INIT_CHAINLENGTH) * (delaylength/1000000);
   double cp = (ceil(factor) * BRANCH_CHAINLENGTH + INIT_CHAINLENGTH) * (delaylength/1000000);
   // delay can be ignored since it crosses out
   double avg_init = INIT_CHAINLENGTH / (double)nthreads;
@@ -82,6 +83,6 @@ int main(int argc, char *argv[])
   double lb = (avg_init + avg_branch) / (ceil(factor) * BRANCH_CHAINLENGTH + INIT_CHAINLENGTH);
   int total_tasks = INIT_CHAINLENGTH + (nbranches * BRANCH_CHAINLENGTH);
   printf("Avg_init: %f, avg_branch: %f, max: %f\n", avg_init, avg_branch, (ceil(factor) * BRANCH_CHAINLENGTH + INIT_CHAINLENGTH));
-  printf("Expected:\n  #tasks: %i\n  #init tasks: %i\n  #branches of length %i: %i\n  avg task time: %f s\n  LB*SerE: %f\n  TE: ~1\n  TaNCP = ThrCP = %f s\n", nbranches*BRANCH_CHAINLENGTH+INIT_CHAINLENGTH,INIT_CHAINLENGTH, BRANCH_CHAINLENGTH, nbranches, delaylength/1000000, lb, cp);
-  print_output("tree_dep_chains", total_tasks, delaylength/1000000, cp, cp, etime, lb, 1.0, 0);
+  printf("Expected:\n  #tasks: %i\n  #init tasks: %i\n  #branches of length %i: %i\n  avg task time: %f s\n  LB*SerE: %f\n  TE: ~1\n TaCP = %f\n TaNCP = ThrCP = %f s\n", nbranches*BRANCH_CHAINLENGTH+INIT_CHAINLENGTH,INIT_CHAINLENGTH, BRANCH_CHAINLENGTH, nbranches, delaylength/1000000, lb, taCP, cp);
+  print_output("tree_dep_chains", total_tasks, delaylength/1000000, taCP, cp, cp, etime, lb, 1.0, 0);
 }

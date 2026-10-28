@@ -81,6 +81,6 @@ int main(int argc, char *argv[])
   double avg_runtime = ((delay * ntasks * (nthreads-1) + big_task_delay) / nthreads) /1000000;
   double lb = avg_runtime / cp;
   double avg_delay = (delay * ntasks * (nthreads-1) + big_task_delay) / (ntasks + 1);
-  printf("Expected:\n  #tasks: %i\n  avg task time: %f us\n  LB: %f\n  SerE: 1\n  TE: %f\n  TaNCP = ThrCP = %f\n", (ntasks*(nthreads-1))+1, avg_delay, lb, te, cp);
-  print_output("mixedgrained_multi_creator", ntasks*(nthreads-1)+1, avg_delay/1000000, cp, cp, etime, lb, te, 1);
+  printf("Expected:\n  #tasks: %i\n  avg task time: %f us\n  LB: %f\n  SerE: 1\n  TE: %f\n TaCP = %f\n TaNCP = ThrCP = %f\n", (ntasks*(nthreads-1))+1, avg_delay, lb, te, cp, cp);
+  print_output("mixedgrained_multi_creator", ntasks*(nthreads-1)+1, avg_delay/1000000, cp, cp, cp, etime, lb, te, 1);
 }

@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
 
   // Print expected values
   double lb = factor / ceil(factor);
+  double taCP = delaylength;
   double cp = ceil(factor) * (delaylength/1000000);
-  printf("Expected:\n  #tasks: %i\n  avg task time: %f s\n  LB: %f\n  SerE: 1\n  TE: ~1\n  TaNCP = ThrCP = %f s\n", ntasks, delaylength/1000000, lb, cp);
-  print_output("coarsegrained_single_creator", ntasks, delaylength/1000000, cp, cp, etime, lb, 1.0, 1);
+  printf("Expected:\n  #tasks: %i\n  avg task time: %f s\n  LB: %f\n  SerE: 1\n  TE: ~1\n TaCP = %f\n TaNCP = ThrCP = %f s\n", ntasks, delaylength/1000000, lb, taCP/1000000, cp);
+  print_output("coarsegrained_single_creator", ntasks, delaylength/1000000, taCP/1000000, cp, cp, etime, lb, 1.0, 1);
 }

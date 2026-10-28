@@ -75,6 +75,13 @@ void CheckFailed(const char *file, int line, const char *cond, u64 v1, u64 v2,
 }
 
 // std::atomic needs this function in debug config
+#ifndef _GLIBCXX_NORETURN
+#define _GLIBCXX_NORETURN
+#endif
+#ifndef _GLIBCXX_NOEXCEPT
+#define _GLIBCXX_NOEXCEPT
+#endif
+
 #ifndef USE_STL
 namespace std {
 extern "C++" _GLIBCXX_NORETURN __attribute__((__cold__)) void

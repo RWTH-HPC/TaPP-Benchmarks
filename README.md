@@ -15,13 +15,13 @@ This will create all executables inside a separate `bin` folder.
 
 For bad_scheduling_*, please also specify `OMP_MAX_TASK_PRIORITY=2`
 
-The codes used for the ICPP'26 submission are: 
+The codes used for the SCA'27 submission are: 
+- finegrained_single_creator 
 - finegrained_multi_creator 
-- finegrained_multi_creator_dep
 - coarsegrained_single_creator 
-- independent_uniform_dep_chains 
-- independent_uniform_create_chains 
-- independent_uniform_taskwait_chains
+- uniform_dep_chain
+- uniform_create_chain 
+- uniform_taskwait_chain
 - tree_dep_chains 
 - tree_create_chains 
 - tree_taskwait_chains
@@ -29,8 +29,6 @@ The codes used for the ICPP'26 submission are:
 - bad_scheduling_dep_chain
 
 The following additional, experimental codes are available:
-- finegrained_single_creator
-- finegrained_single_creator_dep
 - mixedgrained_multi_creator 
 
 To get an overview of the parameters of all applications, you can call `./<exe> --help` for any executable.
@@ -40,18 +38,18 @@ You can specify an output file via `--outpath=<path>`. Accepted special values a
 By default, the output is put into a file named `<app>-1x<nthreads>.txt`.
 
 ## Parameter Mapping
-#### finegrained_multi_creator + finegrained_multi_creator_dep
+#### finegrained_single_creator + finegrained_multi_creator
 - many-tasks: number of generated tasks per thread
 - short-task-delay: duration of single task in microseconds
 #### coarsegrained_single_creator
 - task-to-thread-ratio: number of generated tasks / number of threads
 - big-task-delay: duration of a single task
-#### independent_uniform_dep_chains + independent_uniform_create_chains + independent_uniform_taskwait_chains
-- chain-to-thread-ratio: number of generated chains / number of threads
-- chain-ntasks: number of tasks in a chain
-- chain-task-delay: duration of a single task in the chain
+#### uniform_dep_chain + uniform_create_chain + uniform_taskwait_chain
+- ntasks_per_thread: number of tasks each thread should execute excluding the tail of the chain
+- chain-ntasks: number of tasks in chain
+- chain-task-delay: duration of a single task in the chain and each independent task
 #### tree_dep_chains + tree_create_chains + tree_taskwait_chains
-- branching: number of branches / number of threads
+- branching: number of branches / number of threads -> only integer values currently give correct expected values!
 - depth: number of tasks in the tree trunk chain
 - bdepth: number of tasks in a branch chain
 - chain-task-delay: duration of a single task in the tree chain
@@ -70,6 +68,6 @@ By default, the output is put into a file named `<app>-1x<nthreads>.txt`.
 - task-priority: task priority value for a small task (should be 0, 1 or 2)
 - chain-task-priority: task priority value for tasks in the chain (should be 0, 1 or 2)
 
-#### finegrained_single_creator + finegrained_single_creator_dep + mixedgrained_multi_creator
+#### mixedgrained_multi_creator
 - many-tasks: number of generated tasks per thread
 - short-task-delay: duration of single task in microseconds

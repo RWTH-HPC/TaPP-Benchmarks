@@ -4,8 +4,9 @@ SHELL = /bin/sh
 #  List of all programs to be build.
 #  Each program must have a corresponding <name>.c source file.
 # ------------------------------------------------------------------
-PROGRAMS := bad_scheduling_no_depend finegrained_single_creator finegrained_single_creator_dep finegrained_multi_creator finegrained_multi_creator_dep mixedgrained_multi_creator coarsegrained_single_creator independent_uniform_dep_chains independent_uniform_create_chains independent_uniform_taskwait_chains bad_scheduling_dep_chain tree_dep_chains tree_create_chains tree_taskwait_chains
+PROGRAMS := bad_scheduling_no_depend finegrained_single_creator finegrained_multi_creator mixedgrained_multi_creator coarsegrained_single_creator uniform_dep_chain uniform_create_chain uniform_taskwait_chain bad_scheduling_dep_chain tree_dep_chains tree_create_chains tree_taskwait_chains
 
+PROGRAMS := $(addsuffix _icx,$(PROGRAMS))
 # -------------------------------------------------------------------
 # Where to find the source files and where to put the executables
 # -------------------------------------------------------------------
@@ -21,10 +22,10 @@ BIN_PROGS := $(addprefix $(BIN_DIR)/,$(PROGRAMS))
 # ------------------------------------------------------------------
 #  Compiler and linker flags
 # ------------------------------------------------------------------
-CC      ?= icx
-CXX     ?= icpx
-CFLAGS  ?= -qopenmp -Wall -Wextra -I$(SRC_DIR)
-LDFLAGS ?= -qopenmp
+CC      := icx
+CXX     := icpx
+CFLAGS  := -qopenmp -Wall -Wextra -I$(SRC_DIR)
+LDFLAGS := -qopenmp
 
 # ------------------------------------------------------------------
 #  Default target – build *all* programs and clean up all object files
@@ -39,7 +40,7 @@ cleanobjs:
 # ------------------------------------------------------------------
 #  Build pattern rules
 # ------------------------------------------------------------------
-$(BIN_PROGS): %: %.o $(BIN_DIR)/delay.o $(BIN_DIR)/parse_flags.o $(BIN_DIR)/debug.o
+$(BIN_PROGS): %_icx: %.o $(BIN_DIR)/delay.o $(BIN_DIR)/parse_flags.o $(BIN_DIR)/debug.o
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $(LDFLAGS) $^ -o $@
 

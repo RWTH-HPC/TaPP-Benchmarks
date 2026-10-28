@@ -25,7 +25,7 @@ PARSE_FLAG(int, depth, 200,
 PARSE_FLAG(int, bdepth, 300,
            "Recursion depth after branching.")
 
-PARSE_FLAG(double, branching, 1.5,
+PARSE_FLAG(double, branching, 1.0,
            "Branching factor.")
 
 PARSE_FLAG(int, task_delay, 5000000,
@@ -46,8 +46,8 @@ PARSE_FLAG(int, small_task_ratio, 5,
 PARSE_FLAG(double, task_to_thread_ratio, 1.5,
            "Ratio of #tasks:#threads.")
 
-PARSE_FLAG(double, chain_to_thread_ratio, 1.5,
-           "Ratio of #tasks:#threads.")
+PARSE_FLAG(int, ntasks_per_thread, 2,
+           "Number of tasks per thread ignoring chain tail.")
 
 PARSE_FLAG(int, big_task_delay, 5000000,
            "Execution time for big tasks.")

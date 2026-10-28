@@ -23,7 +23,7 @@ double getclock() {
     return time;
 }
 
-void print_output(const char * app_name, int ntasks, double avg_task_time, double taNCP, double thrCP, double runtime, double lbser, double te, int sep_lb_te) {
+void print_output(const char * app_name, int ntasks, double avg_task_time, double taCP, double taNCP, double thrCP, double runtime, double lbser, double te, int sep_lb_te) {
 
   FILE *of = stdout;
 
@@ -48,6 +48,7 @@ void print_output(const char * app_name, int ntasks, double avg_task_time, doubl
   // fprintf(of, "App: %s\n", app_name);
   fprintf(of, "#tasks: %i\n", ntasks);
   fprintf(of, "AVG task time: %6.9lf s\n", avg_task_time);
+  fprintf(of, "TaCP: %6.9lf s\n", taCP);
   fprintf(of, "TaNCP: %6.9lf s\n", taNCP);
   fprintf(of, "G-CUE: %6.9lf s\n", thrCP);
   fprintf(of, "Runtime: %6.9lf s\n", runtime);

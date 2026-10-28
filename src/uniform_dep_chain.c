@@ -2,10 +2,11 @@
 #include <omp.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <stdlib.h>
 
 #include "parse_flags.h"
 
-#define NCHAINS_FACTOR commandline_flags->chain_to_thread_ratio // nchains/nthreads
+#define NTASKS_PER_THREAD commandline_flags->ntasks_per_thread // number of "columns" of independent tasks / tasks per thread ignoring chain tail
 #define CHAINLENGTH commandline_flags->chain_ntasks // Number of tasks in a chain
 #define DEFAULT_DELAY_TIME commandline_flags->chain_task_delay  // Default delaytime in microseconds
 
@@ -22,31 +23,33 @@ int main(int argc, char *argv[])
 
   int nthreads = omp_get_max_threads();
   int chainlength = CHAINLENGTH;
-  double factor = NCHAINS_FACTOR;
-  int nchains = (int)(nthreads * factor);
-  factor = nchains / (double)nthreads;
-  fprintf(stdout, "Input parameters: \n  #threads: %i\n  #tasks in chain: %i\n  #chains/#threads: %f -> %f\n  #chains: %i\n  task time: %f\n", nthreads, chainlength, NCHAINS_FACTOR, factor, nchains, delaylength);
+  int ntasks_per_thread = NTASKS_PER_THREAD;
+  int total_indep_tasks = (ntasks_per_thread * nthreads) - ntasks_per_thread;
+  fprintf(stdout, "Input parameters: \n  #threads: %i\n  #tasks in chain: %i\n  ntasks per thread: %i \n  task time: %f\n", nthreads, chainlength, NTASKS_PER_THREAD, delaylength);
 
   gettimeofday(&t1, NULL);
   int res = omp_control_tool(omp_control_tool_start, 0, NULL);
   printf("Control tool result: %d\n", res);
 
-  double *dep_arr = malloc(sizeof(double) * nchains);
+  double x = 3;
 
   #pragma omp parallel
   {
     #pragma omp single
     {
-      int i,j;
+      int i;
       struct timeval task_creation_start, task_creation_end;
       gettimeofday(&task_creation_start, NULL);
-      for (i=0; i < nchains; i++)
-      {
-        for(j=0; j < chainlength; j++) {
-          #pragma omp task depend(inout: dep_arr[i])
-          {
-            delay_sleep(delaylength);
-          }
+      for(i=0; i < chainlength; i++) {
+        #pragma omp task depend(inout: x)
+        {
+          delay_sleep(delaylength);
+        }
+      }
+      for (i=0; i < total_indep_tasks; i++) {
+        #pragma omp task
+        {
+          delay_sleep(delaylength);
         }
       }
       gettimeofday(&task_creation_end, NULL);
@@ -64,9 +67,12 @@ int main(int argc, char *argv[])
   printf("Parallel region took %f sec.\n", etime);
 
   // Print expected values
-  double lb = factor / ceil(factor);
-  double cp = ceil(factor) * (delaylength/1000000) * chainlength;
-  double total_tasks = nchains * chainlength;
-  printf("Expected:\n  #tasks: %i\n  #chains of length %i: %i\n  avg task time: %f s\n  LB*SerE: %f\n  TE: ~1\n  TaNCP = ThrCP = %f s\n", nchains*chainlength, chainlength, nchains, delaylength/1000000, lb, cp);
-  print_output("independent_uniform_dep_chains", total_tasks, delaylength/1000000, cp, cp, etime, lb, 1.0, 0);
+  double avg_exec = (total_indep_tasks + chainlength) / (double)nthreads ;
+  double max_exec = chainlength;
+  double lbser = avg_exec / max_exec;
+  double taCP = (delaylength/1000000) * chainlength;
+  double cp = taCP;
+  int total_tasks = total_indep_tasks + chainlength;
+  printf("Expected:\n  #tasks: %i\n  #chain of length %i\n  filled 'columns': %i\n  avg task time: %f s\n  LB*SerE: %f\n  TE: ~1\n TaCP = %f\n TaNCP = ThrCP = %f s\n", total_tasks, chainlength, ntasks_per_thread, delaylength/1000000, lbser, taCP, cp);
+  print_output("uniform_dep_chain", total_tasks, delaylength/1000000, taCP, cp, cp, etime, lbser, 1.0, 0);
 }

@@ -6,4 +6,4 @@
 void delay_sleep(double delaylength);
 double getclock();
 
-void print_output(const char* app_name, int ntasks, double avg_task_time, double taNCP, double thrCP, double runtime, double lbser, double te, int sep_lb_te);
+void print_output(const char* app_name, int ntasks, double avg_task_time, double taCP, double taNCP, double thrCP, double runtime, double lbser, double te, int sep_lb_te);

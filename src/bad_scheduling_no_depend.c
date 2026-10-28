@@ -31,10 +31,10 @@ int main(int argc, char *argv[])
 
   /* Initialization */
   int nthreads = omp_get_max_threads();
-  int ntasks = NTASKS;
   double ratio = SMALL_RATIO;
   double delay_big = DEFAULT_DELAY_TIME;
   double delay_small = DEFAULT_DELAY_TIME / ratio;
+  int ntasks = (nthreads - 1) * ratio;
     fprintf(stdout, "Input parameters: \n  #threads: %i\n  #tasks: %i\n  Big task time: %fs\n  Indp. task time: %fs\n  Prio chain vs indp: %i vs %i\n", nthreads, ntasks, delay_big, delay_small, BIG_TASK_PRIO, SMALL_TASK_PRIO);
 
 
@@ -53,16 +53,16 @@ int main(int argc, char *argv[])
     #pragma omp single
     {
           int i;
-          #pragma omp task priority(BIG_TASK_PRIO)
-          {
-            delay_sleep(delay_big);
-          }
           for (i=0; i < ntasks; i++)
           {
             #pragma omp task priority(SMALL_TASK_PRIO)
             {
               delay_sleep(delay_small);
             }
+          }
+          #pragma omp task priority(BIG_TASK_PRIO)
+          {
+            delay_sleep(delay_big);
           }
     }
   }
@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
   // Print expected values - Note: Current calculation assumes an integer ratio!
   double avg_task_time = ((ratio+ntasks) *delay_small) / (ntasks+1);
   double remaining_small_tasks = fmax(0,ntasks-(ratio*(nthreads-1)));
+  double taCP = fmax(delay_big,delay_small);
   double taNCP = delay_big + delay_small * ceil(remaining_small_tasks / nthreads);
   double avg_time_thread = (delay_big + delay_small * ntasks) / nthreads;
   double max_bad_case = (floor(ntasks/nthreads) + ratio) * delay_small;
@@ -86,13 +87,13 @@ int main(int argc, char *argv[])
 
   // bad case
   if (SMALL_TASK_PRIO > BIG_TASK_PRIO) {
-    printf("Expected:\n  #tasks: %i\n  avg task time: %f s\n  LB: %f\n  SerE: 1\n  TE: ~1\n  TaNCP = %f\n  ThrCP = %f s\n", total_tasks, avg_task_time/1000000, lb_bad, taNCP/1000000, max_bad_case/1000000);
-    print_output("bad_scheduling_no_depend", total_tasks, avg_task_time/1000000, taNCP/1000000, max_bad_case/1000000, etime, lb_bad, 1.0, 1);
+    printf("Expected:\n  #tasks: %i\n  avg task time: %f s\n  LB: %f\n  SerE: 1\n  TE: ~1\n TaCP = %f\n TaNCP = %f\n  ThrCP = %f s\n", total_tasks, avg_task_time/1000000, lb_bad, taCP/1000000, taNCP/1000000, max_bad_case/1000000);
+    print_output("bad_scheduling_no_depend", total_tasks, avg_task_time/1000000, taCP/1000000, taNCP/1000000, max_bad_case/1000000, etime, lb_bad, 1.0, 1);
   }
   // good case
   else {
-    printf("Expected:\n  #tasks: %i\n  avg task time: %f s\n  LB: %f\n  SerE: 1\n  TE: ~1\n  TaNCP = ThrCP = %f s\n", total_tasks, avg_task_time/1000000, lb_good, taNCP/1000000);
-    print_output("bad_scheduling_no_depend", total_tasks, avg_task_time/1000000, taNCP/1000000, taNCP/1000000, etime, lb_good, 1.0, 1);
+    printf("Expected:\n  #tasks: %i\n  avg task time: %f s\n  LB: %f\n  SerE: 1\n  TE: ~1\n TaCP=%f\n TaNCP = ThrCP = %f s\n", total_tasks, avg_task_time/1000000, lb_good, taCP/1000000, taNCP/1000000);
+    print_output("bad_scheduling_no_depend", total_tasks, avg_task_time/1000000, taCP/1000000, taNCP/1000000, taNCP/1000000, etime, lb_good, 1.0, 1);
   }
 }
 
